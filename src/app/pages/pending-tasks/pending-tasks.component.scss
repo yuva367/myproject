@@ -56,13 +56,13 @@
   padding: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  border-left: 4px solid #3498db;
+  border-left: 4px solid #33739e;
   position: relative;
   overflow: hidden;
 }
 
 .task-card:hover {
-  transform: translateY(-5px);
+  transform: matrix(1, 0, 0, 1, 0, -5px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 

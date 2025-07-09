@@ -31,7 +31,6 @@ export class AddTaskComponent {
   alertType = 'error'; // 'error' or 'success'
   today: Date = new Date();
   userPhoto: string | null = null;
-  isPhotoHovered = false;
 
   constructor(private fb: FormBuilder, private taskService: TaskService) {}
 
@@ -55,6 +54,7 @@ export class AddTaskComponent {
 
   onSubmit() {
     this.submitted = true;
+    ///dhdhdgdgddcddgdgd
     
     // Check specifically if target date is missing
     // if (!this.targetDate?.value) {
@@ -79,6 +79,7 @@ export class AddTaskComponent {
       this.showCustomAlert('Task added successfully!', 'success');
       this.taskForm.reset({ status: 'P' });
       this.submitted = false;
+   
     } else {
       // Show single alert for other validation errors
       this.showCustomAlert('Please fill in all required fields correctly!', 'error');
@@ -114,7 +115,7 @@ export class AddTaskComponent {
   onPhotoSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      // Check if file is an image
+      
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = (e: any) => {
@@ -126,10 +127,5 @@ export class AddTaskComponent {
         this.showCustomAlert('Please select a valid image file!', 'error');
       }
     }
-  }
-
-  // Photo hover functionality
-  onPhotoHover(isHovered: boolean) {
-    this.isPhotoHovered = isHovered;
   }
 }
