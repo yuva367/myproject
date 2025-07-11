@@ -68,4 +68,66 @@
       <button class="add-task-btn" routerLink="/add-task">➕ Add New Task</button>
     </div>
   </ng-template>
+
+  <!-- Screenshot Section -->
+  <div class="screenshot-section">
+    <div class="screenshot-controls">
+      <h3>📸 Capture Tasks Screenshot</h3>
+      <p>Capture and upload your pending tasks for sharing or documentation</p>
+      <button class="screenshot-btn" (click)="takeScreenshot()" [disabled]="tasks.length === 0">
+        <span class="btn-icon">📷</span>
+        <span class="btn-text">Take Screenshot & Upload</span>
+      </button>
+    </div>
+
+    <!-- Content to be captured -->
+    <div #screenshotTarget class="screenshot-target" id="content-to-capture">
+      <div class="screenshot-header">
+        <h2>📋 Pending Tasks Report</h2>
+        <div class="report-meta">
+          <div class="report-date">
+            <span class="meta-label">Generated:</span>
+            <span class="meta-value">{{ today | date:'fullDate' }}</span>
+          </div>
+          <div class="report-count">
+            <span class="meta-label">Total Tasks:</span>
+            <span class="meta-value">{{ tasks.length }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="screenshot-content">
+        <div class="task-summary" *ngIf="tasks.length > 0">
+          <div class="summary-card" *ngFor="let task of tasks; let i = index">
+            <div class="summary-index">{{ i + 1 }}</div>
+            <div class="summary-details">
+              <h4 class="summary-name">{{ task.name }}</h4>
+              <p class="summary-description" *ngIf="task.description">{{ task.description }}</p>
+              <div class="summary-dates">
+                <span class="summary-target">🎯 {{ task.targetDate | date:'mediumDate' }}</span>
+                <span class="summary-status">{{ getStatusText(task.status) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="no-tasks-screenshot" *ngIf="tasks.length === 0">
+          <div class="empty-state">
+            <span class="empty-icon">✅</span>
+            <h3>All Tasks Completed!</h3>
+            <p>No pending tasks at this time.</p>
+            <small>Report generated on {{ today | date:'fullDate' }}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="screenshot-footer">
+        <div class="app-branding">
+          <span class="app-name">Task Manager Pro</span>
+          <span class="generation-time">{{ today | date:'short' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

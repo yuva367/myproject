@@ -1,0 +1,139 @@
+<!-- PrimeNG Menubar -->
+    <nav style="display: flex; align-items: center; background: #343a40; padding: 0 20px; border-radius: 8px; margin-bottom: 20px;">
+        <div style="flex: 1;">
+            <p-menubar [model]="items" styleClass="custom-menubar"></p-menubar>
+        </div>
+        <div class="cardr">
+    <p-calendar [(ngModel)]="date" 
+   />
+        </div>
+        
+    </nav>
+
+
+<!-- Dropdown -->
+<!-- <h3>Select a City</h3> -->
+<div class="yuva"><p-dropdown 
+  [options]="cities"
+  [(ngModel)]="selectedCity"
+  optionLabel="name"
+  placeholder="Select a City"
+  (onChange)="onCityChange($event)">
+</p-dropdown></div>
+
+<!-- Optional: Display selection -->
+<p *ngIf="selectedCity">
+  You selected: {{ selectedCity.name }} ({{ selectedCity.code }})
+</p>
+<div class="card" style="background-color: #f5f5f5; width: 50%; margin: 20px auto; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(173, 16, 16, 0.1);">
+    <p-toggleButton 
+        [(ngModel)]="checked" 
+        onLabel="On" 
+        offLabel="Off"  /><h2>Save The  Page !!</h2>
+</div>
+
+
+
+<div class="cardr">
+    <p-calendar [(ngModel)]="date" 
+   />
+   
+</div>
+
+
+
+
+<div class="cardd">
+    <p-editor [(ngModel)]="text" [style]="{ height: '320px' }"></p-editor>
+</div>
+
+
+
+
+
+
+
+
+<!-- Table with Pagination (Alternative approach using p-table built-in pagination) -->
+<div class="card mt-4">
+    <h3>Products Table with Built-in Pagination (10 items per page)</h3>
+  <!-- // pagination ahh -->
+    <p-table 
+        #dt2
+        [value]="products" 
+        [paginator]="true" 
+        [rows]="10" 
+        [totalRecords]="products.length"
+        [rowsPerPageOptions]="[2, 4, 6,10]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+        styleClass="p-datatable-gridlines"
+       [globalFilterFields]="['code', 'name', 'category', 'quantity']"
+    >
+    <ng-template pTemplate="caption">
+            <div class="flex">
+                <p-iconField iconPosition="left" class="ml-auto">
+                    <p-inputIcon>
+                        <i class="pi pi-search"></i>
+                    </p-inputIcon>
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt2.filterGlobal($any($event.target).value, 'contains')" 
+                        placeholder="Search keyword" />
+                </p-iconField>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                 <th pSortableColumn="code" style="width:20%">
+                Code <p-sortIcon field="code" />
+            </th>
+            <th pSortableColumn="name" style="width:20%">
+                Name <p-sortIcon field="name" />
+            </th>
+            <th pSortableColumn="category" style="width:20%">
+                Category <p-sortIcon field="category" />
+            </th>
+            <th pSortableColumn="quantity" style="width:20%">
+                Quantity <p-sortIcon field="quantity" />
+            </th>
+            </tr>
+            <!-- filter -->
+            <tr>
+                <th>
+                    <p-columnFilter 
+                        type="text"
+                        field="code" 
+                        placeholder="Search by code" />
+                </th>
+                <th>
+                    <p-columnFilter 
+                        type="text"
+                        field="name" 
+                        placeholder="Search by name" />
+                </th>
+                <th>
+                    <p-columnFilter 
+                        type="text"
+                        field="category" 
+                        placeholder="Search by category" />
+                </th>
+                <th>
+                    <p-columnFilter 
+                        type="numeric"
+                        field="quantity" 
+                        placeholder="Filter quantity" />
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+            <tr>
+                <td>{{ product.code }}</td>s
+                <td>{{ product.name }}</td>
+                <td>{{ product.category }}</td>
+                <td>{{ product.quantity }}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

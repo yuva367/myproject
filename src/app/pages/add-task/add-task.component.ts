@@ -1,9 +1,10 @@
+
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-
+import { HttpClient } from '@angular/common/http';
 import { Task } from '../../models/task';
 import { TaskService } from '../../services/task.service';
-// import { TaskService } from '../services/task.service';
+import { UploadService } from '../../services/upload.service';
 
 @Component({
   selector: 'app-add-task',
@@ -11,35 +12,46 @@ import { TaskService } from '../../services/task.service';
   styleUrls: ['./add-task.component.scss']
 })
 export class AddTaskComponent {
+  // 🧾 Reactive Form Group
   taskForm = this.fb.group({
     name: ['', [
-      Validators.required, 
+      Validators.required,
       Validators.minLength(3),
-      Validators.maxLength(20), 
+      Validators.maxLength(20),
       Validators.pattern(/^[a-zA-Z0-9 ]+$/)
     ]],
     description: ['', [Validators.minLength(5)]],
     startDate: [''],
     endDate: [''],
     targetDate: ['', Validators.required],
-    status: ['P']
+    status: ['P'] // Default: Pending
   });
 
+  // 🔄 State variables
   submitted = false;
   showAlert = false;
   alertMessage = '';
-  alertType = 'error'; // 'error' or 'success'
+  alertType: 'error' | 'success' = 'error';
   today: Date = new Date();
   userPhoto: string | null = null;
 
-  constructor(private fb: FormBuilder, private taskService: TaskService) {}
+  constructor(
+    private fb: FormBuilder,
+    private taskService: TaskService,
+    private http: HttpClient,
+    private uploadService: UploadService
+  ) {
+    // 🔁 Load previously saved image from localStorage (optional)
+    const savedPhoto = localStorage.getItem('userPhoto');
+    if (savedPhoto) this.userPhoto = savedPhoto;
+  }
 
-  // Getter methods for easy access to form controls
+  // 📌 Form control getters
   get name() { return this.taskForm.get('name'); }
   get description() { return this.taskForm.get('description'); }
   get targetDate() { return this.taskForm.get('targetDate'); }
 
-  // Methods to check for specific validation errors
+  // ✅ Validation helper methods
   hasNameError(errorType: string): boolean {
     return this.name?.hasError(errorType) && (this.name?.dirty || this.name?.touched || this.submitted) || false;
   }
@@ -52,19 +64,13 @@ export class AddTaskComponent {
     return this.targetDate?.hasError(errorType) && (this.targetDate?.dirty || this.targetDate?.touched || this.submitted) || false;
   }
 
+  // 📝 On Form Submit
   onSubmit() {
     this.submitted = true;
-    ///dhdhdgdgddcddgdgd
-    
-    // Check specifically if target date is missing
-    // if (!this.targetDate?.value) {
-    //   this.showCustomAlert('Please enter the target date before adding the task!', 'error');
-    //   this.taskForm.markAllAsTouched();
-    //   return;
-    // }
-    
+
     if (this.taskForm.valid) {
       const formValue = this.taskForm.value;
+
       const newTask: Task = {
         id: Date.now(),
         name: formValue.name ?? '',
@@ -74,58 +80,66 @@ export class AddTaskComponent {
         targetDate: formValue.targetDate ?? '',
         status: (formValue.status as 'P' | 'C') ?? 'P'
       };
-      console.log('Adding new task:', newTask);
-      this.taskService.addTask(newTask);
-      this.showCustomAlert('Task added successfully!', 'success');
+
+      // 👇 Call service or HTTP POST here
+      this.taskService.addTask(newTask)
+
+      this.showCustomAlert('✅ Task ready to submit', 'success');
       this.taskForm.reset({ status: 'P' });
       this.submitted = false;
-   
     } else {
-      // Show single alert for other validation errors
-      this.showCustomAlert('Please fill in all required fields correctly!', 'error');
+      this.showCustomAlert('❌ Please fill all required fields correctly!', 'error');
       this.taskForm.markAllAsTouched();
-      
     }
   }
 
+  // 📢 Show alert message
   showCustomAlert(message: string, type: 'error' | 'success') {
     this.alertMessage = message;
     this.alertType = type;
     this.showAlert = true;
-    
-    // Auto hide after 4 seconds
-    setTimeout(() => {
-      this.showAlert = false;
-    }, 4000);
+    setTimeout(() => this.showAlert = false, 4000);
   }
 
   closeAlert() {
     this.showAlert = false;
   }
 
-  // Photo upload functionality
+  // 📂 Trigger file input manually
   triggerFileInput() {
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    console.log('File input:', fileInput);
-    if (fileInput) {
-      fileInput.click();
-    }
+    if (fileInput) fileInput.click();
   }
 
+  // 🖼️ Image upload + preview + POST to backend
   onPhotoSelected(event: any) {
     const file = event.target.files[0];
-    if (file) {
-      
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          this.userPhoto = e.target.result;
-          console.log('Photo uploaded:', this.userPhoto);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        this.showCustomAlert('Please select a valid image file!', 'error');
-      }
+
+    if (file && file.type.startsWith('image/')) {
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      // ❌ No need to manually set Content-Type for FormData
+      this.http.post('http://localhost:3000/upload', formData).subscribe({
+        next: (res) => {
+          console.log('✅ Upload successful:', res);
+          this.showCustomAlert('Image uploaded successfully!', 'success');
+        },
+        error: (err) => {
+          console.error('❌ Upload failed:', err);
+          this.showCustomAlert('Failed to upload image', 'error');
+        }
+      });
+
+      // 🖼️ Show image preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.userPhoto = e.target.result;
+        localStorage.setItem('userPhoto', this.userPhoto ?? '');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.showCustomAlert('❌ Please select a valid image file!', 'error');
     }
   }
 }
